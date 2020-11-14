@@ -1,16 +1,25 @@
 package com.yuko.packliste;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,9 +29,17 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<Category> listOfCategories = new ArrayList<>();
-    private ArrayList<Person> listOfPeople = new ArrayList<>();
-    private ArrayList<PackingItem> listOfPackingItems = new ArrayList<>();
+    private IOList ioList = new IOList();
+
+    public FragmentRefreshListener getFragmentRefreshListener() {
+        return fragmentRefreshListener;
+    }
+
+    public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
+        this.fragmentRefreshListener = fragmentRefreshListener;
+    }
+
+    private FragmentRefreshListener fragmentRefreshListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,67 +48,22 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        File file = new File(getFilesDir(), "packliste");
-
-        refreshList();
+        ioList.initialize();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            PackingItem packingItem = new PackingItem("Fliegenklatsche");
-            Category category = new Category("Wohnmobil");
-            packingItem.addCategory(category);
-            listOfPackingItems.add(packingItem);
-            listOfCategories.add(category);
-            refreshList();
+            PackingItem packingItem = new PackingItem("MainActivity");
+            packingItem.addCategory("App");
+            ioList.addPackingItem(packingItem);
+//            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.first_fragment);
+//            if (fragment != null) {
+//                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+//                fragmentTransaction.detach(fragment);
+//                fragmentTransaction.attach(fragment);
+//                fragmentTransaction.commit();
+//            }
+            FirstFragment.refreshList();
         });
-    }
-
-    private void refreshList() {
-        LinearLayout overviewListItem = (LinearLayout) findViewById(R.id.categoryList);
-        if (overviewListItem != null) {
-            overviewListItem.removeAllViews();
-        }
-        listOfCategories.forEach((Category category) -> {
-            View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
-            ((TextView) item.findViewById(R.id.categoryName)).setText(category.getName());
-            ((TextView) item.findViewById(R.id.categoryNumber)).setText(getItemCount(category.getName()));
-            overviewListItem.addView(item);
-        });
-        listOfPeople.forEach((Person person) -> {
-            View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
-            ((TextView) item.findViewById(R.id.categoryName)).setText(person.getName());
-            ((TextView) item.findViewById(R.id.categoryNumber)).setText(getItemCount(person.getName()));
-            overviewListItem.addView(item);
-        });
-    }
-
-    private String getItemCount(String name) {
-        int checked = 0;
-        int unchecked = 0;
-        for (int i = 0; i < listOfPackingItems.size(); ++i) {
-            PackingItem item = listOfPackingItems.get(i);
-            ArrayList<Category> itemCategories = item.getListOfCategories();
-            for (int j = 0; j < itemCategories.size(); ++j) {
-                if (itemCategories.get(j).getName().equals(name)) {
-                    if (item.isChecked()) {
-                        checked++;
-                    } else {
-                        unchecked++;
-                    }
-                }
-            }
-            ArrayList<Person> itemPeople = item.getListOfPeople();
-            for (int j = 0; j < itemPeople.size(); ++j) {
-                if (itemPeople.get(j).getName().equals(name)) {
-                    if (item.isChecked()) {
-                        checked++;
-                    } else {
-                        unchecked++;
-                    }
-                }
-            }
-        }
-        return "".concat(Integer.toString((unchecked))).concat("/").concat(Integer.toString(checked + unchecked));
     }
 
     @Override
@@ -114,5 +86,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public interface FragmentRefreshListener{
+        void onRefresh();
     }
 }

@@ -1,5 +1,7 @@
 package com.yuko.packliste;
 
+import android.graphics.Matrix;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -43,6 +45,11 @@ public class PackingItem {
         this.listOfPeople.add(person);
     }
 
+    public void addPerson(String name) {
+        Person person = new Person(name);
+        this.listOfPeople.add(person);
+    }
+
     public ArrayList<Category> getListOfCategories() {
         return listOfCategories;
     }
@@ -52,6 +59,11 @@ public class PackingItem {
     }
 
     public void addCategory(Category category) {
+        this.listOfCategories.add(category);
+    }
+
+    public void addCategory(String name) {
+        Category category = new Category(name);
         this.listOfCategories.add(category);
     }
 
