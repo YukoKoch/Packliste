@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -31,16 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private IOList ioList = new IOList();
 
-    public FragmentRefreshListener getFragmentRefreshListener() {
-        return fragmentRefreshListener;
-    }
-
-    public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
-        this.fragmentRefreshListener = fragmentRefreshListener;
-    }
-
-    private FragmentRefreshListener fragmentRefreshListener;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,21 +40,34 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ioList.initialize();
+        refreshList();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             PackingItem packingItem = new PackingItem("MainActivity");
             packingItem.addCategory("App");
             ioList.addPackingItem(packingItem);
-//            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.first_fragment);
-//            if (fragment != null) {
-//                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-//                fragmentTransaction.detach(fragment);
-//                fragmentTransaction.attach(fragment);
-//                fragmentTransaction.commit();
-//            }
-            FirstFragment.refreshList();
+            refreshList();
         });
+    }
+
+    private void refreshList() {
+        LinearLayout overviewListItem = (LinearLayout) findViewById(R.id.categoryList);
+        if (overviewListItem != null) {
+            overviewListItem.removeAllViews();
+            ioList.getCategories().forEach((Category category) -> {
+                View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
+                ((TextView) item.findViewById(R.id.categoryName)).setText(category.getName());
+                ((TextView) item.findViewById(R.id.categoryNumber)).setText(ioList.getCategoryCount(category.getName()));
+                overviewListItem.addView(item);
+            });
+            ioList.getPeople().forEach((Person person) -> {
+                View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
+                ((TextView) item.findViewById(R.id.categoryName)).setText(person.getName());
+                ((TextView) item.findViewById(R.id.categoryNumber)).setText(ioList.getCategoryCount(person.getName()));
+                overviewListItem.addView(item);
+            });
+        }
     }
 
     @Override
@@ -86,9 +90,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public interface FragmentRefreshListener{
-        void onRefresh();
     }
 }

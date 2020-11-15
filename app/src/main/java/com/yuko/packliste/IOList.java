@@ -108,4 +108,33 @@ public class IOList {
 
         return output;
     }
+
+    public String getCategoryCount(String name) {
+        int checked = 0;
+        int unchecked = 0;
+        for (int i = 0; i < getPackingItems().size(); ++i) {
+            PackingItem item = getPackingItems().get(i);
+            ArrayList<Category> itemCategories = item.getListOfCategories();
+            for (int j = 0; j < itemCategories.size(); ++j) {
+                if (itemCategories.get(j).getName().equals(name)) {
+                    if (item.isChecked()) {
+                        checked++;
+                    } else {
+                        unchecked++;
+                    }
+                }
+            }
+            ArrayList<Person> itemPeople = item.getListOfPeople();
+            for (int j = 0; j < itemPeople.size(); ++j) {
+                if (itemPeople.get(j).getName().equals(name)) {
+                    if (item.isChecked()) {
+                        checked++;
+                    } else {
+                        unchecked++;
+                    }
+                }
+            }
+        }
+        return "".concat(Integer.toString((unchecked))).concat("/").concat(Integer.toString(checked + unchecked));
+    }
 }
