@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ioList.initialize();
+        ioList.initialize(getPreferences(Context.MODE_PRIVATE));
         refreshList();
 
         FloatingActionButton fab = findViewById(R.id.fab);

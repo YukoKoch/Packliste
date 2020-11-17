@@ -1,17 +1,15 @@
 package com.yuko.packliste;
 
-import android.os.Environment;
+import android.content.SharedPreferences;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class IOList {
     private ArrayList<PackingItem> packingItems = new ArrayList<>();
     private ArrayList<Category> listOfCategories = new ArrayList<>();
     private ArrayList<Person> listOfPeople = new ArrayList<>();
-    private boolean isInitialized;
+    private SharedPreferences preferences;
 
     public ArrayList<PackingItem> getPackingItems() {
         return packingItems;
@@ -29,6 +27,11 @@ public class IOList {
         }
     }
 
+    public void addCategory(String name) {
+        Category category = new Category(name);
+        addCategory(category);
+    }
+
     public ArrayList<Person> getPeople() {
         return listOfPeople;
     }
@@ -41,6 +44,11 @@ public class IOList {
         }
     }
 
+    public void addPerson(String name) {
+        Person person = new Person(name);
+        addPerson(person);
+    }
+
     public void addPackingItem(PackingItem item) {
         packingItems.add(item);
         item.getListOfCategories().forEach((Category category) -> {
@@ -49,64 +57,82 @@ public class IOList {
         item.getListOfPeople().forEach((Person person) -> {
             addPerson(person);
         });
+        writePackingItemsToFile();
     }
 
-    public void initialize() {
-        if (isInitialized) {
-            return;
-        }
-
-        PackingItem fliegenklatsche = new PackingItem("Fliegenklatsche");
-        Category wohnmobil = new Category("Wohnmobil");
-        fliegenklatsche.addCategory(wohnmobil);
-        addCategory(wohnmobil);
-        PackingItem bettlakenAnna = new PackingItem("Bettlaken");
-        Person anna = new Person("Anna");
-        bettlakenAnna.addPerson(anna);
-        addPerson(anna);
-        packingItems.add(fliegenklatsche);
-        packingItems.add(bettlakenAnna);
-
-        writePackingItemsToFile();
-        isInitialized = true;
+    public void initialize(SharedPreferences preferences) {
+        this.preferences = preferences;
+        readPackingItemsFromFile();
     }
 
     private void writePackingItemsToFile() {
-        File external = Environment.getExternalStorageDirectory();
-        File packingListFile = new File(external, "packingList.txt");
         String output = getStringFromItems();
-        try {
-            FileOutputStream fos = new FileOutputStream(packingListFile);
-            fos.write(output.getBytes());
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("packingItems", output);
+        editor.apply();
+    }
+
+    private void readPackingItemsFromFile() {
+        String packingItemsString = preferences.getString("packingItems", "").trim();
+        parseItems(packingItemsString);
     }
 
     private String getStringFromItems() {
-        String output = "";
+        final String[] output = {""};
         packingItems.forEach((PackingItem item) -> {
-            output.concat(getStringFromItem(item));
-            output.concat("\n");
+            output[0] = output[0].concat(getStringFromItem(item));
+            output[0] = output[0].concat("\n");
         });
-        return output;
+        return output[0];
     }
 
     private String getStringFromItem(PackingItem item) {
-        String output = "";
-        output.concat(item.getName());
-        output.concat("/c:/");
+        final String[] output = {""};
+        output[0] = output[0].concat(item.getName());
+        output[0] = output[0].concat("/c:/");
         item.getListOfCategories().forEach((Category category) -> {
-            output.concat(category.getName());
+            output[0] = output[0].concat(category.getName());
+            output[0] = output[0].concat("_");
         });
-        output.concat("/p:/");
+        output[0] = output[0].concat("/p:/");
         item.getListOfPeople().forEach((Person person) -> {
-            output.concat(person.getName());
+            output[0] = output[0].concat(person.getName());
+            output[0] = output[0].concat("_");
         });
-        output.concat("/e/");
+        output[0] = output[0].concat("/t:/");
+        output[0] = output[0].concat(String.valueOf(item.isChecked()));
 
-        return output;
+        return output[0];
+    }
+
+    private void parseItems(String itemsString) {
+        String[] items = itemsString.split("\n");
+        Arrays.asList(items).forEach((String itemString) -> {
+            String name = itemString.split(("/c:/"))[0];
+            PackingItem item = new PackingItem(name);
+            String remainder = itemString.split(("/c:/"))[1];
+            String categoriesString = remainder.split("/p:/")[0];
+            String[] categoriesList = categoriesString.split("_");
+            Arrays.asList(categoriesList).forEach((String category) -> {
+                if (category.length() > 0) {
+                    item.addCategory(category);
+                    addCategory(category);
+                }
+            });
+            remainder = remainder.split("/p:/")[1];
+            String peopleString = remainder.split("/t:/")[0];
+            String[] peopleList = peopleString.split("_");
+            Arrays.asList(peopleList).forEach((String person) -> {
+                if (person.length() > 0) {
+                    item.addPerson(person);
+                    addPerson(person);
+                }
+            });
+            remainder = remainder.split("/t:/")[1];
+            item.setChecked(remainder.equals("true"));
+            packingItems.add(item);
+        });
     }
 
     public String getCategoryCount(String name) {
