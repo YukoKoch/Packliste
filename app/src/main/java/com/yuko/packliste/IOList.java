@@ -65,6 +65,15 @@ public class IOList {
         readPackingItemsFromFile();
     }
 
+    public void clearData() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("packingItems", "");
+        editor.apply();
+        packingItems.clear();
+        listOfCategories.clear();
+        listOfPeople.clear();
+    }
+
     private void writePackingItemsToFile() {
         String output = getStringFromItems();
 
@@ -109,6 +118,9 @@ public class IOList {
     private void parseItems(String itemsString) {
         String[] items = itemsString.split("\n");
         Arrays.asList(items).forEach((String itemString) -> {
+            if (itemsString.equals("")) {
+                return;
+            }
             String name = itemString.split(("/c:/"))[0];
             PackingItem item = new PackingItem(name);
             String remainder = itemString.split(("/c:/"))[1];
@@ -162,5 +174,14 @@ public class IOList {
             }
         }
         return "".concat(Integer.toString((unchecked))).concat("/").concat(Integer.toString(checked + unchecked));
+    }
+
+    public ArrayList<CategoryListItem> getCategoryList() {
+        ArrayList<CategoryListItem> items = new ArrayList<>();
+        listOfCategories.forEach((Category category) -> {
+            CategoryListItem item = new CategoryListItem(category.getName(), getCategoryCount(category.getName()));
+            items.add(item);
+        });
+        return items;
     }
 }

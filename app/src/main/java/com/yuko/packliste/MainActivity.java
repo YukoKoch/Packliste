@@ -14,14 +14,17 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
     private IOList ioList = new IOList();
+    private OverviewListItemAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ioList.initialize(getPreferences(Context.MODE_PRIVATE));
-        refreshList();
+
+        ListView listView = (ListView) findViewById(R.id.categoryList);
+        ArrayList<CategoryListItem> categoryList = ioList.getCategoryList();
+        adapter = new OverviewListItemAdapter(this, categoryList);
+        listView.setAdapter(adapter);
 
         AtomicInteger counter = new AtomicInteger();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -39,27 +46,9 @@ public class MainActivity extends AppCompatActivity {
             PackingItem packingItem = new PackingItem("MainActivity");
             packingItem.addCategory("App".concat(String.valueOf(counter.getAndIncrement())));
             ioList.addPackingItem(packingItem);
-            refreshList();
+            adapter.clear();
+            adapter.addAll(ioList.getCategoryList());
         });
-    }
-
-    private void refreshList() {
-        LinearLayout overviewListItem = (LinearLayout) findViewById(R.id.categoryList);
-        if (overviewListItem != null) {
-            overviewListItem.removeAllViews();
-            ioList.getCategories().forEach((Category category) -> {
-                View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
-                ((TextView) item.findViewById(R.id.categoryName)).setText(category.getName());
-                ((TextView) item.findViewById(R.id.categoryNumber)).setText(ioList.getCategoryCount(category.getName()));
-                overviewListItem.addView(item);
-            });
-            ioList.getPeople().forEach((Person person) -> {
-                View item = getLayoutInflater().inflate(R.layout.overview_list_item, null);
-                ((TextView) item.findViewById(R.id.categoryName)).setText(person.getName());
-                ((TextView) item.findViewById(R.id.categoryNumber)).setText(ioList.getCategoryCount(person.getName()));
-                overviewListItem.addView(item);
-            });
-        }
     }
 
     public void openDetailView(View view) {
@@ -84,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_clear_data) {
+            ioList.clearData();
+            adapter.clear();
+            adapter.addAll(ioList.getCategoryList());
             return true;
         }
 

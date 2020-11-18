@@ -27,21 +27,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-            <ScrollView
+            <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-                <LinearLayout
-                    android:id="@+id/categoryList"
-                    android:onClick="openDetailView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                </LinearLayout>
-            </ScrollView>
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/categoryList">
+            </ListView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
