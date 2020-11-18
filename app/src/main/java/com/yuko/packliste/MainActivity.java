@@ -1,34 +1,25 @@
 package com.yuko.packliste;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
     private IOList ioList = new IOList();
 
@@ -42,10 +33,11 @@ public class MainActivity extends AppCompatActivity {
         ioList.initialize(getPreferences(Context.MODE_PRIVATE));
         refreshList();
 
+        AtomicInteger counter = new AtomicInteger();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             PackingItem packingItem = new PackingItem("MainActivity");
-            packingItem.addCategory("App");
+            packingItem.addCategory("App".concat(String.valueOf(counter.getAndIncrement())));
             ioList.addPackingItem(packingItem);
             refreshList();
         });
@@ -68,6 +60,12 @@ public class MainActivity extends AppCompatActivity {
                 overviewListItem.addView(item);
             });
         }
+    }
+
+    public void openDetailView(View view) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(DETAIL_VIEW_CATEGORY, "App");
+        startActivity(intent);
     }
 
     @Override
