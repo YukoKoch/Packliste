@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -18,6 +19,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void showItemList(String category) {
-
+        TextView view = (TextView) findViewById(R.id.categoryDetailName);
+        view.setText(category);
     }
 }

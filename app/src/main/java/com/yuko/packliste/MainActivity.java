@@ -39,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<CategoryListItem> categoryList = ioList.getCategoryList();
         adapter = new OverviewListItemAdapter(this, categoryList);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(DETAIL_VIEW_CATEGORY, ioList.getCategoryList().get(position).getName());
+            startActivity(intent);
+        });
 
         AtomicInteger counter = new AtomicInteger();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -49,12 +54,6 @@ public class MainActivity extends AppCompatActivity {
             adapter.clear();
             adapter.addAll(ioList.getCategoryList());
         });
-    }
-
-    public void openDetailView(View view) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(DETAIL_VIEW_CATEGORY, "App");
-        startActivity(intent);
     }
 
     @Override
