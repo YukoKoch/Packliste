@@ -2,6 +2,7 @@ package com.yuko.packliste;
 
 import android.content.SharedPreferences;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -13,6 +14,23 @@ public class IOList {
 
     public ArrayList<PackingItem> getPackingItems() {
         return packingItems;
+    }
+
+    public ArrayList<PackingItem> getPackingItems(String category) {
+        ArrayList<PackingItem> items = new ArrayList<>();
+        packingItems.forEach((PackingItem item) -> {
+            item.getListOfCategories().forEach((Category categoryObject) -> {
+                if (categoryObject.getName().equals(category)) {
+                    items.add(item);
+                }
+            });
+            item.getListOfPeople().forEach((Person person) -> {
+                if (person.getName().equals(category)) {
+                    items.add(item);
+                }
+            });
+        });
+        return items;
     }
 
     public ArrayList<Category> getCategories() {
@@ -62,7 +80,9 @@ public class IOList {
 
     public void initialize(SharedPreferences preferences) {
         this.preferences = preferences;
-        readPackingItemsFromFile();
+        if (packingItems.size() == 0) {
+            readPackingItemsFromFile();
+        }
     }
 
     public void clearData() {
@@ -180,6 +200,10 @@ public class IOList {
         ArrayList<CategoryListItem> items = new ArrayList<>();
         listOfCategories.forEach((Category category) -> {
             CategoryListItem item = new CategoryListItem(category.getName(), getCategoryCount(category.getName()));
+            items.add(item);
+        });
+        listOfPeople.forEach((Person person) -> {
+            CategoryListItem item = new CategoryListItem(person.getName(), getCategoryCount(person.getName()));
             items.add(item);
         });
         return items;

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
-    private IOList ioList = new IOList();
+    private static IOList ioList = new IOList();
     private OverviewListItemAdapter adapter;
 
     @Override
@@ -81,5 +81,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public static IOList getIOList() {
+        return ioList;
     }
 }
