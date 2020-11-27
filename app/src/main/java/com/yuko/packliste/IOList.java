@@ -155,6 +155,10 @@ public class IOList {
         parseItems(packingItemsString);
     }
 
+    public void importItems(String string) {
+        parseItems(string);
+    }
+
     public void updateCheckedStatus(PackingItem item) {
         for (int i = 0; i < packingItems.size(); ++i) {
             PackingItem packingItem = packingItems.get(i);

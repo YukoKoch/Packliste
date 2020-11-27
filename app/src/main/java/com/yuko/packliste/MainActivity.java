@@ -20,7 +20,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener {
+public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener, ImportDialogFragment.OnImportListener {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
     private static IOList ioList = new IOList();
@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
         int id = item.getItemId();
 
         if (id == R.id.action_import) {
+            ImportDialogFragment importDialogFragment = new ImportDialogFragment();
+            importDialogFragment.show(getSupportFragmentManager(), "ImportDialogFragment");
             return true;
         } else if (id == R.id.action_export) {
             Intent sendIntent = new Intent();
@@ -121,6 +123,13 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
     @Override
     public void addPerson(String name) {
         ioList.addPerson(name);
+        adapter.clear();
+        adapter.addAll(ioList.getCategoryList());
+    }
+
+    @Override
+    public void onImport(String string) {
+        ioList.importItems(string);
         adapter.clear();
         adapter.addAll(ioList.getCategoryList());
     }
