@@ -20,7 +20,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
     private static IOList ioList = new IOList();
@@ -45,14 +45,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        AtomicInteger counter = new AtomicInteger();
+//        AtomicInteger counter = new AtomicInteger();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            PackingItem packingItem = new PackingItem("MainActivity");
-            packingItem.addCategory("App".concat(String.valueOf(counter.getAndIncrement())));
-            ioList.addPackingItem(packingItem);
-            adapter.clear();
-            adapter.addAll(ioList.getCategoryList());
+            AddItemDialogFragment dialogFragment = new AddItemDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "AddItemDialogFragment");
+//            PackingItem packingItem = new PackingItem("MainActivity");
+//            packingItem.addPerson("Person".concat(String.valueOf(counter.getAndIncrement())));
+//            ioList.addPackingItem(packingItem);
+//            adapter.clear();
+//            adapter.addAll(ioList.getCategoryList());
         });
     }
 
@@ -83,7 +85,41 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onItemAdded(String name, ArrayList<String> categories, ArrayList<String> people) {
+        PackingItem packingItem = new PackingItem(name);
+        categories.forEach(s -> packingItem.addCategory(s));
+        people.forEach(s -> packingItem.addPerson(s));
+        ioList.addPackingItem(packingItem);
+        adapter.clear();
+        adapter.addAll(ioList.getCategoryList());
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getCategoryList() {
+        return ioList.getSimpleNameCategoryList();
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getPeopleList() {
+        return ioList.getSimpleNamePeopleList();
+    }
+
     public static IOList getIOList() {
         return ioList;
+    }
+
+    @Override
+    public void addCategory(String name) {
+        ioList.addCategory(name);
+        adapter.clear();
+        adapter.addAll(ioList.getCategoryList());
+    }
+
+    @Override
+    public void addPerson(String name) {
+        ioList.addPerson(name);
+        adapter.clear();
+        adapter.addAll(ioList.getCategoryList());
     }
 }

@@ -17,19 +17,31 @@ public class IOList {
     }
 
     public ArrayList<PackingItem> getPackingItems(String category) {
-        ArrayList<PackingItem> items = new ArrayList<>();
+        ArrayList<PackingItem> unpacked_items = new ArrayList<>();
+        ArrayList<PackingItem> packed_items = new ArrayList<>();
         packingItems.forEach((PackingItem item) -> {
             item.getListOfCategories().forEach((Category categoryObject) -> {
                 if (categoryObject.getName().equals(category)) {
-                    items.add(item);
+                    if (item.isChecked()) {
+                        packed_items.add(item);
+                    } else {
+                        unpacked_items.add(item);
+                    }
                 }
             });
             item.getListOfPeople().forEach((Person person) -> {
                 if (person.getName().equals(category)) {
-                    items.add(item);
+                    if (item.isChecked()) {
+                        packed_items.add(item);
+                    } else {
+                        unpacked_items.add(item);
+                    }
                 }
             });
         });
+        ArrayList<PackingItem> items = new ArrayList<>();
+        items.addAll(unpacked_items);
+        items.addAll(packed_items);
         return items;
     }
 
@@ -105,6 +117,18 @@ public class IOList {
     private void readPackingItemsFromFile() {
         String packingItemsString = preferences.getString("packingItems", "").trim();
         parseItems(packingItemsString);
+    }
+
+    public void updateCheckedStatus(PackingItem item) {
+        for (int i = 0; i < packingItems.size(); ++i) {
+            PackingItem packingItem = packingItems.get(i);
+            if (packingItem.getName().equals(item.getName())
+                && packingItem.getListOfCategories().equals(item.getListOfCategories())
+                && packingItem.getListOfPeople().equals(item.getListOfPeople())) {
+                packingItems.set(i, item);
+            }
+        };
+        writePackingItemsToFile();
     }
 
     private String getStringFromItems() {
@@ -206,6 +230,18 @@ public class IOList {
             CategoryListItem item = new CategoryListItem(person.getName(), getCategoryCount(person.getName()));
             items.add(item);
         });
+        return items;
+    }
+
+    public ArrayList<SimpleNameListItem> getSimpleNameCategoryList() {
+        ArrayList<SimpleNameListItem> items = new ArrayList<>();
+        listOfCategories.forEach(category -> items.add(new SimpleNameListItem(category.getName(), false)));
+        return items;
+    }
+
+    public ArrayList<SimpleNameListItem> getSimpleNamePeopleList() {
+        ArrayList<SimpleNameListItem> items = new ArrayList<>();
+        listOfPeople.forEach(person -> items.add(new SimpleNameListItem(person.getName(), false)));
         return items;
     }
 }

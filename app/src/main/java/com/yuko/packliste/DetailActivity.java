@@ -5,15 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener {
 
     private IOList ioList = new IOList();
     private DetailListItemAdapter adapter;
+    private String category = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +30,19 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void showItemList(String category) {
+        this.category = category;
+
         TextView view = (TextView) findViewById(R.id.categoryDetailName);
         view.setText(category);
 
         ListView listView = (ListView) findViewById(R.id.itemList);
         ArrayList<PackingItem> items = ioList.getPackingItems(category);
-        adapter = new DetailListItemAdapter(this, items);
+        adapter = new DetailListItemAdapter(this, items, this);
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onItemChecked(PackingItem item) {
+        ioList.updateCheckedStatus(item);
     }
 }

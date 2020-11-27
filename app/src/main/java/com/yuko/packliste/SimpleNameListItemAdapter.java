@@ -6,55 +6,54 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
+public class SimpleNameListItemAdapter extends ArrayAdapter<SimpleNameListItem> {
     private Context context;
-    private ArrayList<PackingItem> items = new ArrayList<>();
-    private OnItemCheckedListener listener;
+    private ArrayList<SimpleNameListItem> items = new ArrayList<>();
+    private OnDialogItemCheckedListener listener;
 
-    public DetailListItemAdapter(Context context, ArrayList<PackingItem> items, OnItemCheckedListener listener) {
+    public SimpleNameListItemAdapter(Context context, ArrayList<SimpleNameListItem> items, OnDialogItemCheckedListener listener) {
         super(context, 0, items);
         this.context = context;
         this.items = items;
         this.listener = listener;
     }
 
-    public interface OnItemCheckedListener {
-        void onItemChecked(PackingItem item);
+    public interface OnDialogItemCheckedListener {
+        void onItemChecked(SimpleNameListItem item);
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
-        if(listItem == null) {
-            listItem = LayoutInflater.from(context).inflate(R.layout.detail_list_item, parent, false);
+        if (listItem == null) {
+            listItem = LayoutInflater.from(context).inflate(R.layout.dialog_list_item, parent, false);
         }
 
         if (items.size() > position) {
-            PackingItem item = items.get(position);
-            CheckBox checkBox = (CheckBox) listItem.findViewById(R.id.checkBox);
+            SimpleNameListItem item = items.get(position);
+            CheckBox checkBox = (CheckBox) listItem.findViewById(R.id.dialogListItemCheckbox);
             checkBox.setText(item.getName());
             checkBox.setChecked(item.isChecked());
             checkBox.setOnClickListener(v -> {
                 CheckBox checkBox1 = (CheckBox) v;
                 String name = checkBox1.getText().toString();
                 boolean isChecked = checkBox1.isChecked();
-                items.forEach(packingItem -> {
-                    if (packingItem.getName().equals(name)) {
-                        packingItem.setChecked(isChecked);
-                        listener.onItemChecked(packingItem);
+                items.forEach(simpleNameListItem -> {
+                    if (simpleNameListItem.getName().equals(name)) {
+                        simpleNameListItem.setChecked(isChecked);
+                        listener.onItemChecked(simpleNameListItem);
                     }
                 });
             });
         }
+
         return listItem;
     }
 }
-
