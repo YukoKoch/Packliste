@@ -146,6 +146,10 @@ public class IOList {
         editor.apply();
     }
 
+    public String getExportText() {
+        return getStringFromItems();
+    }
+
     private void readPackingItemsFromFile() {
         String packingItemsString = preferences.getString("packingItems", "").trim();
         parseItems(packingItemsString);
