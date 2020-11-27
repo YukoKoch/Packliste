@@ -27,6 +27,7 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
 
     public interface OnItemCheckedListener {
         void onItemChecked(PackingItem item);
+        void onItemRemoved(PackingItem item);
     }
 
     @NonNull
@@ -53,8 +54,28 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
                     }
                 });
             });
+            checkBox.setOnLongClickListener(v -> {
+                CheckBox checkBox1 = (CheckBox) v;
+                String name = checkBox1.getText().toString();
+                PackingItem toBeRemoved = new PackingItem("");
+                items.forEach(packingItem -> {
+                    if (packingItem.getName().equals(name)) {
+                        // remove checkBox first on crash?
+                        toBeRemoved.setName(packingItem.getName());
+                        toBeRemoved.setListOfCategories(packingItem.getListOfCategories());
+                        toBeRemoved.setListOfPeople(packingItem.getListOfPeople());
+                        toBeRemoved.setChecked(packingItem.isChecked());
+                    }
+                });
+                listener.onItemRemoved(toBeRemoved);
+                return true;
+            });
         }
         return listItem;
+    }
+
+    public void setItems(ArrayList<PackingItem> items) {
+        this.items = items;
     }
 }
 

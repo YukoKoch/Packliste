@@ -45,16 +45,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
             startActivity(intent);
         });
 
-//        AtomicInteger counter = new AtomicInteger();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             AddItemDialogFragment dialogFragment = new AddItemDialogFragment();
             dialogFragment.show(getSupportFragmentManager(), "AddItemDialogFragment");
-//            PackingItem packingItem = new PackingItem("MainActivity");
-//            packingItem.addPerson("Person".concat(String.valueOf(counter.getAndIncrement())));
-//            ioList.addPackingItem(packingItem);
-//            adapter.clear();
-//            adapter.addAll(ioList.getCategoryList());
         });
     }
 

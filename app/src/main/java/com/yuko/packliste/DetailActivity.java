@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener {
+public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveItemDialogFragment.OnItemRemovedListener {
 
     private IOList ioList = new IOList();
     private DetailListItemAdapter adapter;
@@ -44,5 +44,18 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     @Override
     public void onItemChecked(PackingItem item) {
         ioList.updateCheckedStatus(item);
+    }
+
+    @Override
+    public void onItemRemoved(PackingItem item) {
+        RemoveItemDialogFragment dialogFragment = new RemoveItemDialogFragment(item);
+        dialogFragment.show(getSupportFragmentManager(), "RemoveItemDialogFragment");
+    }
+
+    @Override
+    public void onItemRemovedOK(PackingItem item) {
+        ioList.removeItem(item);
+        adapter.clear();
+        adapter.addAll(ioList.getPackingItems(category));
     }
 }
