@@ -80,14 +80,18 @@ public class IOList {
     }
 
     public void addPackingItem(PackingItem item) {
-        packingItems.add(item);
-        item.getListOfCategories().forEach((Category category) -> {
-            addCategory(category);
-        });
-        item.getListOfPeople().forEach((Person person) -> {
-            addPerson(person);
-        });
-        writePackingItemsToFile();
+        boolean alreadyExists = packingItems.stream().anyMatch((PackingItem item1) ->
+                itemsMatch(item1, item));
+        if (!alreadyExists) {
+            packingItems.add(item);
+            item.getListOfCategories().forEach((Category category) -> {
+                addCategory(category);
+            });
+            item.getListOfPeople().forEach((Person person) -> {
+                addPerson(person);
+            });
+            writePackingItemsToFile();
+        }
     }
 
     public void initialize(SharedPreferences preferences) {
@@ -98,10 +102,40 @@ public class IOList {
     }
 
     private boolean itemsMatch(PackingItem item1, PackingItem item2) {
-        return item1.getName().equals(item2.getName())
-                && item1.getListOfCategories().equals(item2.getListOfCategories())
-                && item1.getListOfPeople().equals(item2.getListOfPeople());
+        boolean namesMatch = item1.getName().equals(item2.getName());
+        return namesMatch
+                && categoriesMatch(item1, item2)
+                && peopleMatch(item1, item2);
     }
+
+    private boolean categoriesMatch(PackingItem item1, PackingItem item2) {
+        ArrayList<Category> categories1 = item1.getListOfCategories();
+        ArrayList<Category> categories2 = item2.getListOfCategories();
+        if (categories1.size() != categories2.size()) {
+            return false;
+        }
+        for (int i = 0; i < categories1.size(); ++i) {
+            if (!categories1.get(i).getName().equals(categories2.get(i).getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean peopleMatch(PackingItem item1, PackingItem item2) {
+        ArrayList<Person> person1 = item1.getListOfPeople();
+        ArrayList<Person> person2 = item2.getListOfPeople();
+        if (person1.size() != person2.size()) {
+            return false;
+        }
+        for (int i = 0; i < person1.size(); ++i) {
+            if (!person1.get(i).getName().equals(person2.get(i).getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     public void removeItem(PackingItem item) {
         ArrayList<PackingItem> items = new ArrayList<>();
@@ -192,7 +226,7 @@ public class IOList {
             output[0] = output[0].concat("_");
         });
         output[0] = output[0].concat("/t:/");
-        output[0] = output[0].concat(String.valueOf(item.isChecked()));
+        output[0] = output[0].concat("false");
 
         return output[0];
     }
@@ -225,7 +259,7 @@ public class IOList {
             });
             remainder = remainder.split("/t:/")[1];
             item.setChecked(remainder.equals("true"));
-            packingItems.add(item);
+            addPackingItem(item);
         });
     }
 
