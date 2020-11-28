@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +26,7 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
 
     public interface OnItemCheckedListener {
         void onItemChecked(PackingItem item);
-        void onItemRemoved(PackingItem item);
+        void onItemLongPressed(PackingItem item);
     }
 
     @NonNull
@@ -57,17 +56,17 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
             checkBox.setOnLongClickListener(v -> {
                 CheckBox checkBox1 = (CheckBox) v;
                 String name = checkBox1.getText().toString();
-                PackingItem toBeRemoved = new PackingItem("");
+                PackingItem itemInQuestion = new PackingItem("");
                 items.forEach(packingItem -> {
                     if (packingItem.getName().equals(name)) {
                         // remove checkBox first on crash?
-                        toBeRemoved.setName(packingItem.getName());
-                        toBeRemoved.setListOfCategories(packingItem.getListOfCategories());
-                        toBeRemoved.setListOfPeople(packingItem.getListOfPeople());
-                        toBeRemoved.setChecked(packingItem.isChecked());
+                        itemInQuestion.setName(packingItem.getName());
+                        itemInQuestion.setListOfCategories(packingItem.getListOfCategories());
+                        itemInQuestion.setListOfPeople(packingItem.getListOfPeople());
+                        itemInQuestion.setChecked(packingItem.isChecked());
                     }
                 });
-                listener.onItemRemoved(toBeRemoved);
+                listener.onItemLongPressed(itemInQuestion);
                 return true;
             });
         }

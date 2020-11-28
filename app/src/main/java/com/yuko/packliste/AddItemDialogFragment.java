@@ -21,11 +21,21 @@ import androidx.fragment.app.DialogFragment;
 import java.util.ArrayList;
 
 public class AddItemDialogFragment extends DialogFragment  implements SimpleNameListItemAdapter.OnDialogItemCheckedListener {
-    private OnItemAddedListener listener;
+    private OnItemAddedListener addedListener;
+    private OnItemEditedListener editedListener;
     private SimpleNameListItemAdapter categoryAdapter;
     private SimpleNameListItemAdapter peopleAdapter;
     private ArrayList<SimpleNameListItem> categoryList;
     private ArrayList<SimpleNameListItem> peopleList;
+    private PackingItem itemInQuestion;
+
+    public AddItemDialogFragment() {
+        this.itemInQuestion = new PackingItem("");
+    }
+
+    public AddItemDialogFragment(PackingItem item) {
+        this.itemInQuestion = item;
+    }
 
     public interface OnItemAddedListener {
         void onItemAdded(String name, ArrayList<String> categories, ArrayList<String> people);
@@ -35,15 +45,27 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         void addPerson(String name);
     }
 
+    public interface OnItemEditedListener {
+        void onItemEdited(PackingItem oldItem, PackingItem newItem);
+        ArrayList<SimpleNameListItem> getCategoryList(PackingItem item);
+        ArrayList<SimpleNameListItem> getPeopleList(PackingItem item);
+        void addCategory(String name);
+        void addPerson(String name);
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         try {
-            listener = (OnItemAddedListener) getActivity();
-         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
-                    + " must implement OnItemAddedListener");
+            addedListener = (OnItemAddedListener) getActivity();
+         } catch (ClassCastException ignore) {}
+        try {
+            editedListener = (OnItemEditedListener) getActivity();
+        } catch (ClassCastException ignore) {}
+
+        if (addedListener == null && editedListener == null) {
+            throw new ClassCastException("Must implement either OnItemAddedListener or OnItemEditedListener");
         }
     }
 
@@ -54,11 +76,11 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_item_dialog, null);
 
-        categoryList = listener.getCategoryList();
-        peopleList = listener.getPeopleList();
+        categoryList = (addedListener != null) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion);
+        peopleList = (addedListener != null) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion);
 
-        categoryAdapter = new SimpleNameListItemAdapter(getContext(), listener.getCategoryList(), this);
-        peopleAdapter = new SimpleNameListItemAdapter(getContext(), listener.getPeopleList(), this);
+        categoryAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion), this);
+        peopleAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion), this);
 
         ListView categoryListView = (ListView) view.findViewById(R.id.dialogCategoryList);
         ListView peopleListView = (ListView) view.findViewById(R.id.dialogPeopleList);
@@ -78,7 +100,11 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         Button okButton = (Button) editText.findViewById(R.id.okButton);
         okButton.setOnClickListener(v -> {
             String newCategoryName = dialogEditText.getText().toString();
-            listener.addCategory(newCategoryName);
+            if (addedListener != null) {
+                addedListener.addCategory(newCategoryName);
+            } else {
+                editedListener.addCategory(newCategoryName);
+            }
             categoryList.add(new SimpleNameListItem(newCategoryName, false));
             categoryAdapter.clear();
             categoryAdapter.addAll(categoryList);
@@ -99,7 +125,11 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         Button okButton1 = (Button) editText1.findViewById(R.id.okButton);
         okButton1.setOnClickListener(v -> {
             String newPersonName = dialogEditText1.getText().toString();
-            listener.addPerson(newPersonName);
+            if (addedListener != null) {
+                addedListener.addPerson(newPersonName);
+            } else {
+                editedListener.addPerson(newPersonName);
+            }
             peopleList.add(new SimpleNameListItem(newPersonName, false));
             peopleAdapter.clear();
             peopleAdapter.addAll(peopleList);
@@ -107,10 +137,15 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
             parent1.removeView(editText1);
         });
 
+        if (!itemInQuestion.getName().equals("")) {
+            EditText editText2 = (EditText) view.findViewById(R.id.itemName);
+            editText2.setText(itemInQuestion.getName());
+        }
+
         builder.setView(view);
 
         builder
-                .setPositiveButton("Zufügen", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         TextView name = (TextView) view.findViewById(R.id.itemName);
@@ -135,6 +170,9 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
                             if (categories.size() == 0 && people.size() == 0) {
                                 categories.add("Unsortiert");
                             }
+                            if (!itemInQuestion.getName().equals("")) {
+                                itemName[0] = itemName[0].split("\\(")[0].trim();
+                            }
                             if (people.size() > 0) {
                                 itemName[0] = itemName[0].concat(" (");
                                 people.forEach(person -> {
@@ -144,7 +182,14 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
                                 itemName[0] = itemName[0].substring(0, itemName[0].length() - 2);
                                 itemName[0] = itemName[0].concat(")");
                             }
-                            listener.onItemAdded(itemName[0], categories, people);
+                            if (addedListener != null) {
+                                addedListener.onItemAdded(itemName[0], categories, people);
+                            } else {
+                                PackingItem newItem = new PackingItem(itemName[0]);
+                                categories.forEach(s -> newItem.addCategory(s));
+                                people.forEach(s -> newItem.addPerson(s));
+                                editedListener.onItemEdited(itemInQuestion, newItem);
+                            }
                             dialog.dismiss();
                         }
                     }

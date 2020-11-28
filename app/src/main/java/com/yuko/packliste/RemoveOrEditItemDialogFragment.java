@@ -9,15 +9,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class RemoveItemDialogFragment extends DialogFragment {
+public class RemoveOrEditItemDialogFragment extends DialogFragment {
     private OnItemRemovedListener listener;
     private PackingItem item;
 
     public interface OnItemRemovedListener {
         void onItemRemovedOK(PackingItem item);
+        void onEditItem(PackingItem item);
     }
 
-    public RemoveItemDialogFragment(PackingItem item) {
+    public RemoveOrEditItemDialogFragment(PackingItem item) {
         this.item = item;
     }
 
@@ -38,9 +39,12 @@ public class RemoveItemDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder
-                .setTitle("Wirklich " + item.getName() + " entfernen?")
-                .setPositiveButton("OK", (dialog, which) -> {
+                .setTitle(item.getName() + " löschen oder bearbeiten?")
+                .setPositiveButton("Löschen", (dialog, which) -> {
                     listener.onItemRemovedOK(item);
+                })
+                .setNeutralButton("Bearbeiten", (dialog, which) -> {
+                    listener.onEditItem(item);
                 })
                 .setNegativeButton("Abbrechen", (dialog, which) -> {
                     dialog.dismiss();

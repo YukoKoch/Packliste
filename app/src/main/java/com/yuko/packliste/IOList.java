@@ -83,13 +83,17 @@ public class IOList {
         boolean alreadyExists = packingItems.stream().anyMatch((PackingItem item1) ->
                 itemsMatch(item1, item));
         if (!alreadyExists) {
-            packingItems.add(item);
             item.getListOfCategories().forEach((Category category) -> {
                 addCategory(category);
             });
             item.getListOfPeople().forEach((Person person) -> {
                 addPerson(person);
             });
+            if (item.getListOfCategories().size() == 0 && item.getListOfPeople().size() == 0) {
+                addCategory("Unsortiert");
+                item.addCategory("Unsortiert");
+            }
+            packingItems.add(item);
             writePackingItemsToFile();
         }
     }
@@ -203,6 +207,16 @@ public class IOList {
         writePackingItemsToFile();
     }
 
+    public void updateItem(PackingItem oldItem, PackingItem newItem) {
+        for (int i = 0; i < packingItems.size(); ++i) {
+            PackingItem packingItem = packingItems.get(i);
+            if (itemsMatch(packingItem, oldItem)) {
+                packingItems.set(i, newItem);
+            }
+        };
+        writePackingItemsToFile();
+    }
+
     private String getStringFromItems() {
         final String[] output = {""};
         packingItems.forEach((PackingItem item) -> {
@@ -311,9 +325,27 @@ public class IOList {
         return items;
     }
 
+    public ArrayList<SimpleNameListItem> getSimpleNameCategoryList(PackingItem item) {
+        ArrayList<SimpleNameListItem> items = new ArrayList<>();
+        listOfCategories.forEach(category -> {
+            boolean isChecked = item.getListOfCategories().stream().anyMatch(category1 -> category.getName().equals(category1.getName()));
+            items.add(new SimpleNameListItem(category.getName(), isChecked));
+        });
+        return items;
+    }
+
     public ArrayList<SimpleNameListItem> getSimpleNamePeopleList() {
         ArrayList<SimpleNameListItem> items = new ArrayList<>();
         listOfPeople.forEach(person -> items.add(new SimpleNameListItem(person.getName(), false)));
+        return items;
+    }
+
+    public ArrayList<SimpleNameListItem> getSimpleNamePeopleList(PackingItem item) {
+        ArrayList<SimpleNameListItem> items = new ArrayList<>();
+        listOfPeople.forEach(person -> {
+            boolean isChecked = item.getListOfPeople().stream().anyMatch(person1 -> person.getName().equals(person1.getName()));
+            items.add(new SimpleNameListItem(person.getName(), isChecked));
+        });;
         return items;
     }
 }

@@ -2,16 +2,14 @@ package com.yuko.packliste;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveItemDialogFragment.OnItemRemovedListener {
+public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveOrEditItemDialogFragment.OnItemRemovedListener, AddItemDialogFragment.OnItemEditedListener {
 
     private IOList ioList = new IOList();
     private DetailListItemAdapter adapter;
@@ -47,9 +45,9 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     }
 
     @Override
-    public void onItemRemoved(PackingItem item) {
-        RemoveItemDialogFragment dialogFragment = new RemoveItemDialogFragment(item);
-        dialogFragment.show(getSupportFragmentManager(), "RemoveItemDialogFragment");
+    public void onItemLongPressed(PackingItem item) {
+        RemoveOrEditItemDialogFragment dialogFragment = new RemoveOrEditItemDialogFragment(item);
+        dialogFragment.show(getSupportFragmentManager(), "RemoveOrEditItemDialogFragment");
     }
 
     @Override
@@ -57,5 +55,38 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
         ioList.removeItem(item);
         adapter.clear();
         adapter.addAll(ioList.getPackingItems(category));
+    }
+
+    @Override
+    public void onEditItem(PackingItem item) {
+        AddItemDialogFragment dialogFragment = new AddItemDialogFragment(item);
+        dialogFragment.show(getSupportFragmentManager(), "AddItemDialogFragment");
+    }
+
+    @Override
+    public void onItemEdited(PackingItem oldItem, PackingItem newItem) {
+        ioList.updateItem(oldItem, newItem);
+        adapter.clear();
+        adapter.addAll(ioList.getPackingItems(category));
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getCategoryList(PackingItem item) {
+        return ioList.getSimpleNameCategoryList(item);
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getPeopleList(PackingItem item) {
+        return ioList.getSimpleNamePeopleList(item);
+    }
+
+    @Override
+    public void addCategory(String name) {
+        ioList.addCategory(name);
+    }
+
+    @Override
+    public void addPerson(String name) {
+        ioList.addPerson(name);
     }
 }
