@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,8 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
     private ArrayList<SimpleNameListItem> categoryList;
     private ArrayList<SimpleNameListItem> peopleList;
     private PackingItem itemInQuestion;
+    private ListView categoryListView;
+    private ListView peopleListView;
 
     public AddItemDialogFragment() {
         this.itemInQuestion = new PackingItem("");
@@ -82,10 +85,12 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         categoryAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion), this);
         peopleAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion), this);
 
-        ListView categoryListView = (ListView) view.findViewById(R.id.dialogCategoryList);
-        ListView peopleListView = (ListView) view.findViewById(R.id.dialogPeopleList);
+        categoryListView = (ListView) view.findViewById(R.id.dialogCategoryList);
+        peopleListView = (ListView) view.findViewById(R.id.dialogPeopleList);
         categoryListView.setAdapter(categoryAdapter);
         peopleListView.setAdapter(peopleAdapter);
+        updateCategoryListItems();
+        updatePeopleListItems();
 
         TextView addCategoryButton = (TextView) view.findViewById(R.id.addCategoryButton);
         final View editText = inflater.inflate(R.layout.dialog_edit_text_field, null);
@@ -100,14 +105,15 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         Button okButton = (Button) editText.findViewById(R.id.okButton);
         okButton.setOnClickListener(v -> {
             String newCategoryName = dialogEditText.getText().toString();
-            if (addedListener != null) {
-                addedListener.addCategory(newCategoryName);
-            } else {
-                editedListener.addCategory(newCategoryName);
+            if (!newCategoryName.equals("")) {
+                if (addedListener != null) {
+                    addedListener.addCategory(newCategoryName);
+                } else {
+                    editedListener.addCategory(newCategoryName);
+                }
+                categoryList.add(new SimpleNameListItem(newCategoryName, false));
+                updateCategoryListItems();
             }
-            categoryList.add(new SimpleNameListItem(newCategoryName, false));
-            categoryAdapter.clear();
-            categoryAdapter.addAll(categoryList);
             parent.addView(addCategoryButton, parent.indexOfChild(editText));
             parent.removeView(editText);
         });
@@ -125,14 +131,15 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         Button okButton1 = (Button) editText1.findViewById(R.id.okButton);
         okButton1.setOnClickListener(v -> {
             String newPersonName = dialogEditText1.getText().toString();
-            if (addedListener != null) {
-                addedListener.addPerson(newPersonName);
-            } else {
-                editedListener.addPerson(newPersonName);
+            if (!newPersonName.equals("")) {
+                if (addedListener != null) {
+                    addedListener.addPerson(newPersonName);
+                } else {
+                    editedListener.addPerson(newPersonName);
+                }
+                peopleList.add(new SimpleNameListItem(newPersonName, false));
+                updatePeopleListItems();
             }
-            peopleList.add(new SimpleNameListItem(newPersonName, false));
-            peopleAdapter.clear();
-            peopleAdapter.addAll(peopleList);
             parent1.addView(addPersonButton, parent1.indexOfChild(editText1));
             parent1.removeView(editText1);
         });
@@ -202,6 +209,28 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
                 });
 
         return builder.create();
+    }
+
+    private void updateCategoryListItems() {
+        categoryAdapter.clear();
+        categoryAdapter.addAll(categoryList);
+        if(categoryAdapter.getCount() > 5){
+            View item = categoryAdapter.getView(0, null, categoryListView);
+            item.measure(0, 0);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (5.5 * item.getMeasuredHeight()));
+            categoryListView.setLayoutParams(params);
+        }
+    }
+
+    private void updatePeopleListItems() {
+        peopleAdapter.clear();
+        peopleAdapter.addAll(peopleList);
+        if(peopleAdapter.getCount() > 5){
+            View item = peopleAdapter.getView(0, null, peopleListView);
+            item.measure(0, 0);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (5.5 * item.getMeasuredHeight()));
+            peopleListView.setLayoutParams(params);
+        }
     }
 
     @Override

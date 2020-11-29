@@ -140,6 +140,10 @@ public class IOList {
         return true;
     }
 
+    public void setCheckedForAllItems(boolean isChecked) {
+        packingItems.forEach(item -> item.setChecked(isChecked));
+        writePackingItemsToFile();
+    }
 
     public void removeItem(PackingItem item) {
         ArrayList<PackingItem> items = new ArrayList<>();
@@ -198,12 +202,11 @@ public class IOList {
     }
 
     public void updateCheckedStatus(PackingItem item) {
-        for (int i = 0; i < packingItems.size(); ++i) {
-            PackingItem packingItem = packingItems.get(i);
-            if (itemsMatch(packingItem, item)) {
-                packingItems.set(i, item);
+        packingItems.forEach(item1 -> {
+            if (itemsMatch(item1, item)) {
+                item1.setChecked(item.isChecked());
             }
-        };
+        });
         writePackingItemsToFile();
     }
 
@@ -240,7 +243,7 @@ public class IOList {
             output[0] = output[0].concat("_");
         });
         output[0] = output[0].concat("/t:/");
-        output[0] = output[0].concat("false");
+        output[0] = output[0].concat(Boolean.toString(item.isChecked()));
 
         return output[0];
     }
@@ -273,6 +276,19 @@ public class IOList {
             });
             remainder = remainder.split("/t:/")[1];
             item.setChecked(remainder.equals("true"));
+            if (item.getListOfPeople().size() > 0) {
+                if (!item.getName().endsWith(")")) {
+                    final String[] itemName = {item.getName()};
+                    itemName[0] = itemName[0].concat(" (");
+                    item.getListOfPeople().forEach(person -> {
+                        itemName[0] = itemName[0].concat(person.getName());
+                        itemName[0] = itemName[0].concat(", ");
+                    });
+                    itemName[0] = itemName[0].substring(0, itemName[0].length() - 2);
+                    itemName[0] = itemName[0].concat(")");
+                    item.setName(itemName[0]);
+                }
+            }
             addPackingItem(item);
         });
     }

@@ -13,6 +13,16 @@
         android:title="@string/action_export"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_check"
+        android:orderInCategory="100"
+        android:title="Alles Abhaken"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_uncheck"
+        android:orderInCategory="100"
+        android:title="Alle Haken entfernen"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_clear_data"
         android:orderInCategory="100"
         android:title="@string/action_clear_data"

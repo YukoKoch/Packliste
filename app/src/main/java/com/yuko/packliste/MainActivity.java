@@ -79,6 +79,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
             return true;
+        } else if (id == R.id.action_check) {
+            ioList.setCheckedForAllItems(true);
+            adapter.clear();
+            adapter.addAll(ioList.getCategoryList());
+        } else if (id == R.id.action_uncheck) {
+            ioList.setCheckedForAllItems(false);
+            adapter.clear();
+            adapter.addAll(ioList.getCategoryList());
         } else if (id == R.id.action_clear_data) {
             ioList.clearData();
             adapter.clear();

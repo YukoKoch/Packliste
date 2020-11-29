@@ -15,36 +15,24 @@
         android:layout_marginBottom="4dp"
         android:hint="Name" />
 
-    <LinearLayout
-        android:id="@+id/dialogCategoryListContainer"
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:maxHeight="16dp">
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/dialogCategoryList">
-        </ListView>
-    </LinearLayout>
+        android:id="@+id/dialogCategoryList">
+    </ListView>
+
     <TextView
         android:id="@+id/addCategoryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ Kategorie" />
 
-    <LinearLayout
-        android:id="@+id/dialogPeopleListContainer"
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:maxHeight="16dp">
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/dialogPeopleList">
-        </ListView>
-    </LinearLayout>
+        android:id="@+id/dialogPeopleList">
+    </ListView>
+
     <TextView
         android:id="@+id/addPersonButton"
         android:layout_width="wrap_content"
