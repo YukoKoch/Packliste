@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveOrEditItemDialogFragment.OnItemRemovedListener, AddItemDialogFragment.OnItemEditedListener {
@@ -25,6 +27,12 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
         Intent intent = getIntent();
         String category = intent.getStringExtra(MainActivity.DETAIL_VIEW_CATEGORY);
         showItemList(category);
+
+        FloatingActionButton fab = findViewById(R.id.fabDetail);
+        fab.setOnClickListener(view -> {
+            AddItemDialogFragment dialogFragment = new AddItemDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "AddItemDialogFragment");
+        });
     }
 
     private void showItemList(String category) {
@@ -88,5 +96,25 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     @Override
     public void addPerson(String name) {
         ioList.addPerson(name);
+    }
+
+    @Override
+    public void onItemAdded(String name, ArrayList<String> categories, ArrayList<String> people) {
+        PackingItem packingItem = new PackingItem(name);
+        categories.forEach(s -> packingItem.addCategory(s));
+        people.forEach(s -> packingItem.addPerson(s));
+        ioList.addPackingItem(packingItem);
+        adapter.clear();
+        adapter.addAll(ioList.getPackingItems(category));
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getCategoryList() {
+        return ioList.getSimpleNameCategoryList();
+    }
+
+    @Override
+    public ArrayList<SimpleNameListItem> getPeopleList() {
+        return ioList.getSimpleNamePeopleList();
     }
 }

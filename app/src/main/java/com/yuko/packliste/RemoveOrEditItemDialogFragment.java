@@ -30,7 +30,7 @@ public class RemoveOrEditItemDialogFragment extends DialogFragment {
             listener = (OnItemRemovedListener) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString()
-                    + "must implement OnItemRemovedListener");
+                    + "must implement RemoveOrEditItemDialogFragment");
         }
     }
 

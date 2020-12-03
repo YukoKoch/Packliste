@@ -48,12 +48,10 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         void addPerson(String name);
     }
 
-    public interface OnItemEditedListener {
+    public interface OnItemEditedListener extends OnItemAddedListener {
         void onItemEdited(PackingItem oldItem, PackingItem newItem);
         ArrayList<SimpleNameListItem> getCategoryList(PackingItem item);
         ArrayList<SimpleNameListItem> getPeopleList(PackingItem item);
-        void addCategory(String name);
-        void addPerson(String name);
     }
 
     @Override
@@ -79,11 +77,11 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_item_dialog, null);
 
-        categoryList = (addedListener != null) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion);
-        peopleList = (addedListener != null) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion);
+        categoryList = (itemInQuestion.getName().equals("")) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion);
+        peopleList = (itemInQuestion.getName().equals("")) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion);
 
-        categoryAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion), this);
-        peopleAdapter = new SimpleNameListItemAdapter(getContext(), (addedListener != null) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion), this);
+        categoryAdapter = new SimpleNameListItemAdapter(getContext(), (itemInQuestion.getName().equals("")) ? addedListener.getCategoryList() : editedListener.getCategoryList(itemInQuestion), this);
+        peopleAdapter = new SimpleNameListItemAdapter(getContext(), (itemInQuestion.getName().equals("")) ? addedListener.getPeopleList() : editedListener.getPeopleList(itemInQuestion), this);
 
         categoryListView = (ListView) view.findViewById(R.id.dialogCategoryList);
         peopleListView = (ListView) view.findViewById(R.id.dialogPeopleList);
@@ -106,7 +104,7 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         okButton.setOnClickListener(v -> {
             String newCategoryName = dialogEditText.getText().toString();
             if (!newCategoryName.equals("")) {
-                if (addedListener != null) {
+                if (itemInQuestion.getName().equals("")) {
                     addedListener.addCategory(newCategoryName);
                 } else {
                     editedListener.addCategory(newCategoryName);
@@ -132,7 +130,7 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
         okButton1.setOnClickListener(v -> {
             String newPersonName = dialogEditText1.getText().toString();
             if (!newPersonName.equals("")) {
-                if (addedListener != null) {
+                if (itemInQuestion.getName().equals("")) {
                     addedListener.addPerson(newPersonName);
                 } else {
                     editedListener.addPerson(newPersonName);
@@ -189,7 +187,7 @@ public class AddItemDialogFragment extends DialogFragment  implements SimpleName
                                 itemName[0] = itemName[0].substring(0, itemName[0].length() - 2);
                                 itemName[0] = itemName[0].concat(")");
                             }
-                            if (addedListener != null) {
+                            if (itemInQuestion.getName().equals("")) {
                                 addedListener.onItemAdded(itemName[0], categories, people);
                             } else {
                                 PackingItem newItem = new PackingItem(itemName[0]);
