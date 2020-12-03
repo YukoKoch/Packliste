@@ -1,9 +1,12 @@
 package com.yuko.packliste;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -11,7 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveOrEditItemDialogFragment.OnItemRemovedListener, AddItemDialogFragment.OnItemEditedListener {
+public class DetailActivity extends AppCompatActivity implements DetailListItemAdapter.OnItemCheckedListener, RemoveOrEditItemDialogFragment.OnItemRemovedListener, AddItemDialogFragment.OnItemEditedListener, SearchDialogFragment.OnSearchListener {
 
     private IOList ioList = new IOList();
     private DetailListItemAdapter adapter;
@@ -33,6 +36,25 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
             AddItemDialogFragment dialogFragment = new AddItemDialogFragment();
             dialogFragment.show(getSupportFragmentManager(), "AddItemDialogFragment");
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_detail_search) {
+            SearchDialogFragment searchDialogFragment = new SearchDialogFragment();
+            searchDialogFragment.show(getSupportFragmentManager(), "SearchDialogFragment");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void showItemList(String category) {
@@ -116,5 +138,12 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     @Override
     public ArrayList<SimpleNameListItem> getPeopleList() {
         return ioList.getSimpleNamePeopleList();
+    }
+
+    @Override
+    public void onSearch(String string) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(MainActivity.DETAIL_VIEW_CATEGORY, "Suche nach: " + string);
+        startActivity(intent);
     }
 }
