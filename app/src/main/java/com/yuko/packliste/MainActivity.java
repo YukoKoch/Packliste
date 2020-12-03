@@ -20,7 +20,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener, ImportDialogFragment.OnImportListener {
+public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener, ImportDialogFragment.OnImportListener, SearchDialogFragment.OnSearchListener {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
     private static IOList ioList = new IOList();
@@ -92,6 +92,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
             adapter.clear();
             adapter.addAll(ioList.getCategoryList());
             return true;
+        } else if (id == R.id.action_search) {
+            SearchDialogFragment searchDialogFragment = new SearchDialogFragment();
+            searchDialogFragment.show(getSupportFragmentManager(), "SearchDialogFragment");
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -140,5 +144,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
         ioList.importItems(string);
         adapter.clear();
         adapter.addAll(ioList.getCategoryList());
+    }
+
+    @Override
+    public void onSearch(String string) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(DETAIL_VIEW_CATEGORY, "Suche nach: " + string);
+        startActivity(intent);
     }
 }

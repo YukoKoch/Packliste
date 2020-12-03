@@ -20,24 +20,35 @@ public class IOList {
         ArrayList<PackingItem> unpacked_items = new ArrayList<>();
         ArrayList<PackingItem> packed_items = new ArrayList<>();
         packingItems.forEach((PackingItem item) -> {
-            item.getListOfCategories().forEach((Category categoryObject) -> {
-                if (categoryObject.getName().equals(category)) {
+            String[] searchedStrings = category.split("Suche nach: ");
+            if (searchedStrings.length > 1) {
+                if (item.getName().toLowerCase().contains(searchedStrings[1].toLowerCase())) {
                     if (item.isChecked()) {
                         packed_items.add(item);
                     } else {
                         unpacked_items.add(item);
                     }
                 }
-            });
-            item.getListOfPeople().forEach((Person person) -> {
-                if (person.getName().equals(category)) {
-                    if (item.isChecked()) {
-                        packed_items.add(item);
-                    } else {
-                        unpacked_items.add(item);
+            } else {
+                item.getListOfCategories().forEach((Category categoryObject) -> {
+                    if (categoryObject.getName().equals(category)) {
+                        if (item.isChecked()) {
+                            packed_items.add(item);
+                        } else {
+                            unpacked_items.add(item);
+                        }
                     }
-                }
-            });
+                });
+                item.getListOfPeople().forEach((Person person) -> {
+                    if (person.getName().equals(category)) {
+                        if (item.isChecked()) {
+                            packed_items.add(item);
+                        } else {
+                            unpacked_items.add(item);
+                        }
+                    }
+                });
+            }
         });
         ArrayList<PackingItem> items = new ArrayList<>();
         items.addAll(unpacked_items);
