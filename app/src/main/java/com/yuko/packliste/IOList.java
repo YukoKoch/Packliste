@@ -29,6 +29,12 @@ public class IOList {
                         unpacked_items.add(item);
                     }
                 }
+            } else if (category.equals("Alles")) {
+                if (item.isChecked()) {
+                    packed_items.add(item);
+                } else {
+                    unpacked_items.add(item);
+                }
             } else {
                 item.getListOfCategories().forEach((Category categoryObject) -> {
                     if (categoryObject.getName().equals(category)) {
@@ -331,6 +337,17 @@ public class IOList {
             }
         }
         return "".concat(Integer.toString((unchecked))).concat("/").concat(Integer.toString(checked + unchecked));
+    }
+
+    public String getUncheckedCount() {
+        int unchecked = 0;
+        for (int i = 0; i < getPackingItems().size(); ++i) {
+            PackingItem item = getPackingItems().get(i);
+            if (!item.isChecked()) {
+                unchecked++;
+            }
+        }
+        return "".concat(Integer.toString((unchecked))).concat("/").concat(Integer.toString(getPackingItems().size()));
     }
 
     public ArrayList<CategoryListItem> getCategoryList() {

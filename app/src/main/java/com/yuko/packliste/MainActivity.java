@@ -37,11 +37,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
 
         ListView listView = (ListView) findViewById(R.id.categoryList);
         ArrayList<CategoryListItem> categoryList = ioList.getCategoryList();
+        categoryList.add(0, new CategoryListItem("Alles", ioList.getUncheckedCount()));
         adapter = new OverviewListItemAdapter(this, categoryList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra(DETAIL_VIEW_CATEGORY, ioList.getCategoryList().get(position).getName());
+            intent.putExtra(DETAIL_VIEW_CATEGORY, categoryList.get(position).getName());
             startActivity(intent);
         });
 
@@ -52,11 +53,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
         });
     }
 
+    private void refresh() {
+        adapter.clear();
+        ArrayList<CategoryListItem> categoryList = ioList.getCategoryList();
+        categoryList.add(0, new CategoryListItem("Alles", ioList.getUncheckedCount()));
+        adapter.addAll(categoryList);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        adapter.clear();
-        adapter.addAll(ioList.getCategoryList());
+        refresh();
     }
 
     @Override
@@ -88,16 +95,13 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
             return true;
         } else if (id == R.id.action_check) {
             ioList.setCheckedForAllItems(true);
-            adapter.clear();
-            adapter.addAll(ioList.getCategoryList());
+            refresh();
         } else if (id == R.id.action_uncheck) {
             ioList.setCheckedForAllItems(false);
-            adapter.clear();
-            adapter.addAll(ioList.getCategoryList());
+            refresh();
         } else if (id == R.id.action_clear_data) {
             ioList.clearData();
-            adapter.clear();
-            adapter.addAll(ioList.getCategoryList());
+            refresh();
             return true;
         } else if (id == R.id.action_search) {
             SearchDialogFragment searchDialogFragment = new SearchDialogFragment();
@@ -114,8 +118,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
         categories.forEach(s -> packingItem.addCategory(s));
         people.forEach(s -> packingItem.addPerson(s));
         ioList.addPackingItem(packingItem);
-        adapter.clear();
-        adapter.addAll(ioList.getCategoryList());
+        refresh();
     }
 
     @Override
@@ -135,22 +138,19 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
     @Override
     public void addCategory(String name) {
         ioList.addCategory(name);
-        adapter.clear();
-        adapter.addAll(ioList.getCategoryList());
+        refresh();
     }
 
     @Override
     public void addPerson(String name) {
         ioList.addPerson(name);
-        adapter.clear();
-        adapter.addAll(ioList.getCategoryList());
+        refresh();
     }
 
     @Override
     public void onImport(String string) {
         ioList.importItems(string);
-        adapter.clear();
-        adapter.addAll(ioList.getCategoryList());
+        refresh();
     }
 
     @Override
