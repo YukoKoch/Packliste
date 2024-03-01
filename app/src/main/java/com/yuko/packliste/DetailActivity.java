@@ -106,25 +106,14 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     }
 
     @Override
-    public ArrayList<SimpleNameListItem> getPeopleList(PackingItem item) {
-        return ioList.getSimpleNamePeopleList(item);
-    }
-
-    @Override
     public void addCategory(String name) {
         ioList.addCategory(name);
     }
 
     @Override
-    public void addPerson(String name) {
-        ioList.addPerson(name);
-    }
-
-    @Override
-    public void onItemAdded(String name, ArrayList<String> categories, ArrayList<String> people) {
+    public void onItemAdded(String name, ArrayList<String> categories) {
         PackingItem packingItem = new PackingItem(name);
-        categories.forEach(s -> packingItem.addCategory(s));
-        people.forEach(s -> packingItem.addPerson(s));
+        categories.forEach(packingItem::addCategory);
         ioList.addPackingItem(packingItem);
         adapter.clear();
         adapter.addAll(ioList.getPackingItems(category));
@@ -133,11 +122,6 @@ public class DetailActivity extends AppCompatActivity implements DetailListItemA
     @Override
     public ArrayList<SimpleNameListItem> getCategoryList() {
         return ioList.getSimpleNameCategoryList();
-    }
-
-    @Override
-    public ArrayList<SimpleNameListItem> getPeopleList() {
-        return ioList.getSimpleNamePeopleList();
     }
 
     @Override

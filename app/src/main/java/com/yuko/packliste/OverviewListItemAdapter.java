@@ -10,13 +10,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 public class OverviewListItemAdapter extends ArrayAdapter<CategoryListItem> {
-    private Context context;
-    private ArrayList<CategoryListItem> items = new ArrayList<>();
+    private final Context context;
+    private final ArrayList<CategoryListItem> items;
 
     public OverviewListItemAdapter(Context context, ArrayList<CategoryListItem> items) {
         super(context, 0, items);

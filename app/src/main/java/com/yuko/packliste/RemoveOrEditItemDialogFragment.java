@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment;
 
 public class RemoveOrEditItemDialogFragment extends DialogFragment {
     private OnItemRemovedListener listener;
-    private PackingItem item;
+    private final PackingItem item;
 
     public interface OnItemRemovedListener {
         void onItemRemovedOK(PackingItem item);
@@ -29,7 +29,7 @@ public class RemoveOrEditItemDialogFragment extends DialogFragment {
         try {
             listener = (OnItemRemovedListener) getActivity();
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
+            throw new ClassCastException(requireActivity()
                     + "must implement RemoveOrEditItemDialogFragment");
         }
     }
@@ -40,15 +40,9 @@ public class RemoveOrEditItemDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder
                 .setTitle(item.getName() + " löschen oder bearbeiten?")
-                .setPositiveButton("Löschen", (dialog, which) -> {
-                    listener.onItemRemovedOK(item);
-                })
-                .setNeutralButton("Bearbeiten", (dialog, which) -> {
-                    listener.onEditItem(item);
-                })
-                .setNegativeButton("Abbrechen", (dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setPositiveButton("Löschen", (dialog, which) -> listener.onItemRemovedOK(item))
+                .setNeutralButton("Bearbeiten", (dialog, which) -> listener.onEditItem(item))
+                .setNegativeButton("Abbrechen", (dialog, which) -> dialog.dismiss());
         return builder.create();
     }
 }

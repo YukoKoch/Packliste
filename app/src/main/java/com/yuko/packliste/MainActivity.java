@@ -3,27 +3,21 @@ package com.yuko.packliste;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.View;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogFragment.OnItemAddedListener, ImportDialogFragment.OnImportListener, SearchDialogFragment.OnSearchListener {
     public static final String DETAIL_VIEW_CATEGORY = "com.yuko.packliste.MESSSAGE";
 
-    private static IOList ioList = new IOList();
+    private static final IOList ioList = new IOList();
     private OverviewListItemAdapter adapter;
 
     @Override
@@ -113,10 +107,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
     }
 
     @Override
-    public void onItemAdded(String name, ArrayList<String> categories, ArrayList<String> people) {
+    public void onItemAdded(String name, ArrayList<String> categories) {
         PackingItem packingItem = new PackingItem(name);
-        categories.forEach(s -> packingItem.addCategory(s));
-        people.forEach(s -> packingItem.addPerson(s));
+        categories.forEach(packingItem::addCategory);
         ioList.addPackingItem(packingItem);
         refresh();
     }
@@ -126,11 +119,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
         return ioList.getSimpleNameCategoryList();
     }
 
-    @Override
-    public ArrayList<SimpleNameListItem> getPeopleList() {
-        return ioList.getSimpleNamePeopleList();
-    }
-
     public static IOList getIOList() {
         return ioList;
     }
@@ -138,12 +126,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogFrag
     @Override
     public void addCategory(String name) {
         ioList.addCategory(name);
-        refresh();
-    }
-
-    @Override
-    public void addPerson(String name) {
-        ioList.addPerson(name);
         refresh();
     }
 

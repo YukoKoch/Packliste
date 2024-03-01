@@ -5,9 +5,9 @@
     <item
         android:id="@+id/action_search"
         android:orderInCategory="100"
-        android:title="Suchen"
+        android:title="@string/search"
         android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_import"
         android:orderInCategory="100"
@@ -21,12 +21,12 @@
     <item
         android:id="@+id/action_check"
         android:orderInCategory="100"
-        android:title="Alles Abhaken"
+        android:title="@string/check_all"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_uncheck"
         android:orderInCategory="100"
-        android:title="Alle Haken entfernen"
+        android:title="@string/uncheck_all"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_clear_data"

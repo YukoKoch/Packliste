@@ -13,9 +13,9 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
-    private Context context;
-    private ArrayList<PackingItem> items = new ArrayList<>();
-    private OnItemCheckedListener listener;
+    private final Context context;
+    private final ArrayList<PackingItem> items;
+    private final OnItemCheckedListener listener;
 
     public DetailListItemAdapter(Context context, ArrayList<PackingItem> items, OnItemCheckedListener listener) {
         super(context, 0, items);
@@ -62,7 +62,6 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
                         // remove checkBox first on crash?
                         itemInQuestion.setName(packingItem.getName());
                         itemInQuestion.setListOfCategories(packingItem.getListOfCategories());
-                        itemInQuestion.setListOfPeople(packingItem.getListOfPeople());
                         itemInQuestion.setChecked(packingItem.isChecked());
                     }
                 });
@@ -71,10 +70,6 @@ public class DetailListItemAdapter extends ArrayAdapter<PackingItem> {
             });
         }
         return listItem;
-    }
-
-    public void setItems(ArrayList<PackingItem> items) {
-        this.items = items;
     }
 }
 

@@ -13,9 +13,9 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class SimpleNameListItemAdapter extends ArrayAdapter<SimpleNameListItem> {
-    private Context context;
-    private ArrayList<SimpleNameListItem> items = new ArrayList<>();
-    private OnDialogItemCheckedListener listener;
+    private final Context context;
+    private final ArrayList<SimpleNameListItem> items;
+    private final OnDialogItemCheckedListener listener;
 
     public SimpleNameListItemAdapter(Context context, ArrayList<SimpleNameListItem> items, OnDialogItemCheckedListener listener) {
         super(context, 0, items);

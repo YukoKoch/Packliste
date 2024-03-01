@@ -2,14 +2,12 @@ package com.yuko.packliste;
 
 import android.content.SharedPreferences;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class IOList {
-    private ArrayList<PackingItem> packingItems = new ArrayList<>();
-    private ArrayList<Category> listOfCategories = new ArrayList<>();
-    private ArrayList<Person> listOfPeople = new ArrayList<>();
+    private final ArrayList<PackingItem> packingItems = new ArrayList<>();
+    private final ArrayList<Category> listOfCategories = new ArrayList<>();
     private SharedPreferences preferences;
 
     public ArrayList<PackingItem> getPackingItems() {
@@ -45,25 +43,12 @@ public class IOList {
                         }
                     }
                 });
-                item.getListOfPeople().forEach((Person person) -> {
-                    if (person.getName().equals(category)) {
-                        if (item.isChecked()) {
-                            packed_items.add(item);
-                        } else {
-                            unpacked_items.add(item);
-                        }
-                    }
-                });
             }
         });
         ArrayList<PackingItem> items = new ArrayList<>();
         items.addAll(unpacked_items);
         items.addAll(packed_items);
         return items;
-    }
-
-    public ArrayList<Category> getCategories() {
-        return listOfCategories;
     }
 
     public void addCategory(Category category) {
@@ -79,34 +64,12 @@ public class IOList {
         addCategory(category);
     }
 
-    public ArrayList<Person> getPeople() {
-        return listOfPeople;
-    }
-
-    public void addPerson(Person person) {
-        boolean alreadyExists = listOfPeople.stream().anyMatch((Person p) ->
-                p.getName().equals(person.getName()));
-        if (!alreadyExists) {
-            listOfPeople.add(person);
-        }
-    }
-
-    public void addPerson(String name) {
-        Person person = new Person(name);
-        addPerson(person);
-    }
-
     public void addPackingItem(PackingItem item) {
         boolean alreadyExists = packingItems.stream().anyMatch((PackingItem item1) ->
                 itemsMatch(item1, item));
         if (!alreadyExists) {
-            item.getListOfCategories().forEach((Category category) -> {
-                addCategory(category);
-            });
-            item.getListOfPeople().forEach((Person person) -> {
-                addPerson(person);
-            });
-            if (item.getListOfCategories().size() == 0 && item.getListOfPeople().size() == 0) {
+            item.getListOfCategories().forEach(this::addCategory);
+            if (item.getListOfCategories().size() == 0) {
                 addCategory("Unsortiert");
                 item.addCategory("Unsortiert");
             }
@@ -124,9 +87,7 @@ public class IOList {
 
     private boolean itemsMatch(PackingItem item1, PackingItem item2) {
         boolean namesMatch = item1.getName().equals(item2.getName());
-        return namesMatch
-                && categoriesMatch(item1, item2)
-                && peopleMatch(item1, item2);
+        return namesMatch && categoriesMatch(item1, item2);
     }
 
     private boolean categoriesMatch(PackingItem item1, PackingItem item2) {
@@ -137,20 +98,6 @@ public class IOList {
         }
         for (int i = 0; i < categories1.size(); ++i) {
             if (!categories1.get(i).getName().equals(categories2.get(i).getName())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean peopleMatch(PackingItem item1, PackingItem item2) {
-        ArrayList<Person> person1 = item1.getListOfPeople();
-        ArrayList<Person> person2 = item2.getListOfPeople();
-        if (person1.size() != person2.size()) {
-            return false;
-        }
-        for (int i = 0; i < person1.size(); ++i) {
-            if (!person1.get(i).getName().equals(person2.get(i).getName())) {
                 return false;
             }
         }
@@ -172,20 +119,12 @@ public class IOList {
         packingItems.clear();
         packingItems.addAll(items);
         writePackingItemsToFile();
-        cleanUpCategoriesAndPeople();
+        cleanUpCategories();
     }
 
-    private void cleanUpCategoriesAndPeople() {
+    private void cleanUpCategories() {
         listOfCategories.clear();
-        listOfPeople.clear();
-        packingItems.forEach(packingItem -> {
-            packingItem.getListOfCategories().forEach(category -> {
-                addCategory(category);
-            });
-            packingItem.getListOfPeople().forEach(person -> {
-                addPerson(person);
-            });
-        });
+        packingItems.forEach(packingItem -> packingItem.getListOfCategories().forEach(this::addCategory));
     }
 
     public void clearData() {
@@ -194,7 +133,6 @@ public class IOList {
         editor.apply();
         packingItems.clear();
         listOfCategories.clear();
-        listOfPeople.clear();
     }
 
     private void writePackingItemsToFile() {
@@ -233,7 +171,7 @@ public class IOList {
             if (itemsMatch(packingItem, oldItem)) {
                 packingItems.set(i, newItem);
             }
-        };
+        }
         writePackingItemsToFile();
     }
 
@@ -254,15 +192,39 @@ public class IOList {
             output[0] = output[0].concat(category.getName());
             output[0] = output[0].concat("_");
         });
-        output[0] = output[0].concat("/p:/");
-        item.getListOfPeople().forEach((Person person) -> {
-            output[0] = output[0].concat(person.getName());
-            output[0] = output[0].concat("_");
-        });
         output[0] = output[0].concat("/t:/");
         output[0] = output[0].concat(Boolean.toString(item.isChecked()));
 
         return output[0];
+    }
+
+    private void legacyParseWithPeople(PackingItem item, String remainder) {
+        String[] categoriesArray = remainder.split("/p:/");
+        String categoriesString = categoriesArray[0];
+        String[] categoriesList = categoriesString.split("_");
+        Arrays.asList(categoriesList).forEach((String category) -> {
+            if (category.length() > 0) {
+                item.addCategory(category);
+                addCategory(category);
+            }
+        });
+        remainder = categoriesArray[1];
+        String[] peopleArray = remainder.split("/t:/");
+        String peopleString = peopleArray[0];
+        String[] peopleList = peopleString.split("_");
+        Arrays.asList(peopleList).forEach((String person) -> {
+            if (person.length() > 0) {
+                item.addCategory(person);
+                addCategory(person);
+            }
+        });
+        if (peopleArray.length < 2) {
+            addPackingItem(item);
+            return;
+        }
+        remainder = peopleArray[1];
+        item.setChecked(remainder.equals("true"));
+        addPackingItem(item);
     }
 
     private void parseItems(String itemsString) {
@@ -271,10 +233,24 @@ public class IOList {
             if (itemsString.equals("")) {
                 return;
             }
-            String name = itemString.split(("/c:/"))[0];
+            String[] itemArray = itemString.split(("/c:/"));
+            String name = itemArray[0];
             PackingItem item = new PackingItem(name);
-            String remainder = itemString.split(("/c:/"))[1];
-            String categoriesString = remainder.split("/p:/")[0];
+            if (itemArray.length < 2) {
+                addPackingItem(item);
+                return;
+            }
+            String remainder = itemArray[1];
+            String[] categoriesArray = remainder.split("/p:/");
+            // If /p:/ was found inside the string, then categoriesArray has more than one value.
+            // Therefore, the legacy parse should be used, which parses the strings that still
+            // contained people. Nowadays, people code is removed.
+            if (categoriesArray.length > 1) {
+                legacyParseWithPeople(item, remainder);
+                return;
+            }
+            categoriesArray = remainder.split("/t:/");
+            String categoriesString = categoriesArray[0];
             String[] categoriesList = categoriesString.split("_");
             Arrays.asList(categoriesList).forEach((String category) -> {
                 if (category.length() > 0) {
@@ -282,30 +258,12 @@ public class IOList {
                     addCategory(category);
                 }
             });
-            remainder = remainder.split("/p:/")[1];
-            String peopleString = remainder.split("/t:/")[0];
-            String[] peopleList = peopleString.split("_");
-            Arrays.asList(peopleList).forEach((String person) -> {
-                if (person.length() > 0) {
-                    item.addPerson(person);
-                    addPerson(person);
-                }
-            });
-            remainder = remainder.split("/t:/")[1];
-            item.setChecked(remainder.equals("true"));
-            if (item.getListOfPeople().size() > 0) {
-                if (!item.getName().endsWith(")")) {
-                    final String[] itemName = {item.getName()};
-                    itemName[0] = itemName[0].concat(" (");
-                    item.getListOfPeople().forEach(person -> {
-                        itemName[0] = itemName[0].concat(person.getName());
-                        itemName[0] = itemName[0].concat(", ");
-                    });
-                    itemName[0] = itemName[0].substring(0, itemName[0].length() - 2);
-                    itemName[0] = itemName[0].concat(")");
-                    item.setName(itemName[0]);
-                }
+            if (categoriesArray.length < 2) {
+                addPackingItem(item);
+                return;
             }
+            remainder = categoriesArray[1];
+            item.setChecked(remainder.equals("true"));
             addPackingItem(item);
         });
     }
@@ -318,16 +276,6 @@ public class IOList {
             ArrayList<Category> itemCategories = item.getListOfCategories();
             for (int j = 0; j < itemCategories.size(); ++j) {
                 if (itemCategories.get(j).getName().equals(name)) {
-                    if (item.isChecked()) {
-                        checked++;
-                    } else {
-                        unchecked++;
-                    }
-                }
-            }
-            ArrayList<Person> itemPeople = item.getListOfPeople();
-            for (int j = 0; j < itemPeople.size(); ++j) {
-                if (itemPeople.get(j).getName().equals(name)) {
                     if (item.isChecked()) {
                         checked++;
                     } else {
@@ -356,10 +304,6 @@ public class IOList {
             CategoryListItem item = new CategoryListItem(category.getName(), getCategoryCount(category.getName()));
             items.add(item);
         });
-        listOfPeople.forEach((Person person) -> {
-            CategoryListItem item = new CategoryListItem(person.getName(), getCategoryCount(person.getName()));
-            items.add(item);
-        });
         return items;
     }
 
@@ -375,21 +319,6 @@ public class IOList {
             boolean isChecked = item.getListOfCategories().stream().anyMatch(category1 -> category.getName().equals(category1.getName()));
             items.add(new SimpleNameListItem(category.getName(), isChecked));
         });
-        return items;
-    }
-
-    public ArrayList<SimpleNameListItem> getSimpleNamePeopleList() {
-        ArrayList<SimpleNameListItem> items = new ArrayList<>();
-        listOfPeople.forEach(person -> items.add(new SimpleNameListItem(person.getName(), false)));
-        return items;
-    }
-
-    public ArrayList<SimpleNameListItem> getSimpleNamePeopleList(PackingItem item) {
-        ArrayList<SimpleNameListItem> items = new ArrayList<>();
-        listOfPeople.forEach(person -> {
-            boolean isChecked = item.getListOfPeople().stream().anyMatch(person1 -> person.getName().equals(person1.getName()));
-            items.add(new SimpleNameListItem(person.getName(), isChecked));
-        });;
         return items;
     }
 }
